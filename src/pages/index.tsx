@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 
 export default function Home() {
-  const [letters, setLetters] = useState<string[][]>(Array.from({ length: 6 }, () => ["", "", "", "", ""]));
-  const [rowColors, setRowColors] = useState<string[][]>(Array.from({ length: 6 }, () => Array(5).fill("")));
+  const [letters, setLetters] = useState<string[][]>(
+    Array.from({ length: 6 }, () => ["", "", "", "", ""])
+  );
+  const [rowColors, setRowColors] = useState<string[][]>(
+    Array.from({ length: 6 }, () => Array(5).fill(""))
+  );
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [activeRow, setActiveRow] = useState<number>(0);
   const [correctWord, setCorrectWord] = useState<string>("");
@@ -61,7 +65,7 @@ export default function Home() {
     }
   };
 
-  console.log(correctWord)
+  console.log(correctWord);
 
   const getBackgroundColor = (row: number, index: number) => {
     if (row < activeRow) {
@@ -76,7 +80,9 @@ export default function Home() {
   useEffect(() => {
     const fetchCorrectWord = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/palavra");
+        const response = await fetch(
+          "https://verbumgame.vercel.app/api/palavra"
+        );
         const data = await response.json();
         setCorrectWord(data.palavra.toUpperCase());
       } catch (error) {
