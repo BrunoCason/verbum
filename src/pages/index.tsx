@@ -1,17 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 
 export default function Home() {
-  const [letters, setLetters] = useState<string[][]>(
-    Array.from({ length: 6 }, () => ["", "", "", "", ""])
-  );
-  const [rowColors, setRowColors] = useState<string[][]>(
-    Array.from({ length: 6 }, () => Array(5).fill(""))
-  );
+  const [letters, setLetters] = useState<string[][]>(Array.from({ length: 6 }, () => ["", "", "", "", ""]));
+  const [rowColors, setRowColors] = useState<string[][]>(Array.from({ length: 6 }, () => Array(5).fill("")));
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [activeRow, setActiveRow] = useState<number>(0);
+  const [correctWord, setCorrectWord] = useState<string>("");
 
   const inputsRef = useRef<(HTMLInputElement | null)[][]>([]);
-  const correctWord = "AUREO";
 
   const handleChange = (row: number, index: number, value: string) => {
     if (gameOver) return;
@@ -44,9 +40,9 @@ export default function Home() {
       const newRowColors = [...rowColors];
       const colors = letters[row].map((letter, index) => {
         if (letter === correctWord[index]) {
-          return "bg-green-500 border-none";
+          return "bg-green-600 border-none";
         } else if (correctWord.includes(letter)) {
-          return "bg-yellow-500 border-none";
+          return "bg-yellow-600 border-none";
         } else {
           return "bg-gray-900 border-none";
         }
@@ -65,6 +61,8 @@ export default function Home() {
     }
   };
 
+  console.log(correctWord)
+
   const getBackgroundColor = (row: number, index: number) => {
     if (row < activeRow) {
       return rowColors[row][index];
@@ -74,6 +72,20 @@ export default function Home() {
       return "border-none bg-teste1";
     }
   };
+
+  useEffect(() => {
+    const fetchCorrectWord = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/palavra");
+        const data = await response.json();
+        setCorrectWord(data.palavra.toUpperCase());
+      } catch (error) {
+        console.error("Erro ao buscar palavra:", error);
+      }
+    };
+
+    fetchCorrectWord();
+  }, []);
 
   useEffect(() => {
     inputsRef.current[activeRow][0]?.focus();
