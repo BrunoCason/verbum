@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Keyboard from "../components/Keyboard";
+import GameOverMessage from "./GameOverMessage";
 
 export default function Game() {
   const [letters, setLetters] = useState<string[][]>(
@@ -14,17 +15,18 @@ export default function Game() {
   const [keyboardColors, setKeyboardColors] = useState<{
     [key: string]: string;
   }>({});
+  const [endMessage, setEndMessage] = useState<string>("");
 
   const inputsRef = useRef<(HTMLInputElement | null)[][]>([]);
 
   const handleChange = (row: number, index: number, value: string) => {
     if (gameOver) return;
     if (value.length > 1) return;
-  
+
     const newLetters = [...letters];
-    newLetters[row][index] = value.toUpperCase(); 
+    newLetters[row][index] = value.toUpperCase();
     setLetters(newLetters);
-  
+
     if (value && index < 4) {
       inputsRef.current[row][index + 1]?.focus();
     }
@@ -49,7 +51,7 @@ export default function Game() {
           return updated;
         });
       }
-  
+
       if (index > 0 && letters[row][index] === "") {
         inputsRef.current[row][index - 1]?.focus();
       }
@@ -63,10 +65,10 @@ export default function Game() {
     ) {
       const newRowColors = [...rowColors];
       const normalizedCorrectWord = normalizeString(correctWord);
-  
+
       const colors = letters[row].map((letter, index) => {
         const normalizedLetter = normalizeString(letter);
-  
+
         if (normalizedLetter === normalizedCorrectWord[index]) {
           return "bg-green-600 border-none";
         } else if (normalizedCorrectWord.includes(normalizedLetter)) {
@@ -75,16 +77,20 @@ export default function Game() {
           return "bg-gray-900 border-none";
         }
       });
-  
+
       newRowColors[row] = colors;
       setRowColors(newRowColors);
-  
+
       updateKeyboardColors(row);
-  
+
       if (letters[row].join("") === normalizedCorrectWord) {
         setGameOver(true);
+        setEndMessage("Parabéns!");
+      } else if (row === letters.length - 1) {
+        setGameOver(true);
+        setEndMessage(`Fim de jogo! A palavra era: ${correctWord}`);
       }
-  
+
       if (row < letters.length - 1 && !gameOver) {
         setActiveRow(row + 1);
         inputsRef.current[row + 1][0]?.focus();
@@ -92,19 +98,36 @@ export default function Game() {
     }
   };
 
+  const handleRestart = async () => {
+    setLetters(Array.from({ length: 6 }, () => ["", "", "", "", ""]));
+    setRowColors(Array.from({ length: 6 }, () => Array(5).fill("")));
+    setGameOver(false);
+    setActiveRow(0);
+    setEndMessage("");
+    setKeyboardColors({});
+
+    try {
+      const response = await fetch("https://verbumgame.vercel.app/api/palavra");
+      const data = await response.json();
+      setCorrectWord(data.palavra.toUpperCase());
+    } catch (error) {
+      console.error("Erro ao buscar palavra:", error);
+    }
+  };
+
   const handleVirtualKeyPress = (key: string) => {
     if (gameOver) return;
-  
+
     const row = activeRow;
     const currentRow = [...letters[row]];
-  
+
     if (key === "Backspace") {
       let lastFilledIndex = currentRow.length - 1;
-  
+
       while (lastFilledIndex >= 0 && currentRow[lastFilledIndex] === "") {
         lastFilledIndex--;
       }
-  
+
       if (lastFilledIndex >= 0) {
         currentRow[lastFilledIndex] = "";
         setLetters((prev) => {
@@ -112,14 +135,14 @@ export default function Game() {
           updated[row] = currentRow;
           return updated;
         });
-  
+
         inputsRef.current[row][lastFilledIndex]?.focus();
       }
     } else if (key === "Enter" && currentRow.every((letter) => letter !== "")) {
       verifyRow(row);
     } else if (/^[A-Z]$/.test(key)) {
       const emptyIndex = currentRow.indexOf("");
-  
+
       if (emptyIndex !== -1) {
         currentRow[emptyIndex] = key;
         setLetters((prev) => {
@@ -127,7 +150,7 @@ export default function Game() {
           updated[row] = currentRow;
           return updated;
         });
-  
+
         inputsRef.current[row][emptyIndex]?.focus();
       }
     }
@@ -178,7 +201,9 @@ export default function Game() {
   useEffect(() => {
     const fetchCorrectWord = async () => {
       try {
-        const response = await fetch("https://verbumgame.vercel.app/api/palavra");
+        const response = await fetch(
+          "https://verbumgame.vercel.app/api/palavra"
+        );
         const data = await response.json();
         setCorrectWord(data.palavra.toUpperCase());
       } catch (error) {
@@ -241,6 +266,9 @@ export default function Game() {
         onKeyPress={handleVirtualKeyPress}
         keyboardColors={keyboardColors}
       />
+      {gameOver && (
+        <GameOverMessage message={endMessage} onRestart={handleRestart} />
+      )}
     </div>
   );
 }
