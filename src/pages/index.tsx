@@ -30,6 +30,10 @@ export default function Home() {
     }
   };
 
+  const normalizeString = (str: string) => {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  };
+
   const handleKeyDown = (
     row: number,
     index: number,
@@ -46,21 +50,26 @@ export default function Home() {
       letters[row].every((letter) => letter !== "")
     ) {
       const newRowColors = [...rowColors];
+      const normalizedCorrectWord = normalizeString(correctWord);
+
       const colors = letters[row].map((letter, index) => {
-        if (letter === correctWord[index]) {
+        const normalizedLetter = normalizeString(letter);
+
+        if (normalizedLetter === normalizedCorrectWord[index]) {
           return "bg-green-600 border-none";
-        } else if (correctWord.includes(letter)) {
+        } else if (normalizedCorrectWord.includes(normalizedLetter)) {
           return "bg-yellow-600 border-none";
         } else {
           return "bg-gray-900 border-none";
         }
       });
+
       newRowColors[row] = colors;
       setRowColors(newRowColors);
 
       updateKeyboardColors(row);
 
-      if (letters[row].join("") === correctWord) {
+      if (letters[row].join("") === normalizedCorrectWord) {
         setGameOver(true);
       }
 
@@ -68,6 +77,36 @@ export default function Home() {
         setActiveRow(row + 1);
         inputsRef.current[row + 1][0]?.focus();
       }
+    }
+  };
+
+  const verifyRow = (row: number) => {
+    const newRowColors = [...rowColors];
+    const normalizedCorrectWord = normalizeString(correctWord);
+
+    const colors = letters[row].map((letter, index) => {
+      const normalizedLetter = normalizeString(letter);
+
+      if (normalizedLetter === normalizedCorrectWord[index]) {
+        return "bg-green-600 border-none";
+      } else if (normalizedCorrectWord.includes(normalizedLetter)) {
+        return "bg-yellow-600 border-none";
+      } else {
+        return "bg-gray-900 border-none";
+      }
+    });
+    newRowColors[row] = colors;
+    setRowColors(newRowColors);
+
+    updateKeyboardColors(row);
+
+    if (letters[row].join("") === normalizedCorrectWord) {
+      setGameOver(true);
+    }
+
+    if (row < letters.length - 1 && !gameOver) {
+      setActiveRow(row + 1);
+      inputsRef.current[row + 1][0]?.focus();
     }
   };
 
@@ -100,30 +139,6 @@ export default function Home() {
   useEffect(() => {
     inputsRef.current[activeRow][0]?.focus();
   }, [activeRow]);
-
-  const verifyRow = (row: number) => {
-    const newRowColors = [...rowColors];
-    const colors = letters[row].map((letter, index) => {
-      if (letter === correctWord[index]) {
-        return "bg-green-600 border-none";
-      } else if (correctWord.includes(letter)) {
-        return "bg-yellow-600 border-none";
-      } else {
-        return "bg-gray-900 border-none";
-      }
-    });
-    newRowColors[row] = colors;
-    setRowColors(newRowColors);
-
-    updateKeyboardColors(row);
-
-    if (letters[row].join("") === correctWord) {
-      setGameOver(true);
-    } else if (row < letters.length - 1) {
-      setActiveRow(row + 1);
-      inputsRef.current[row + 1][0]?.focus();
-    }
-  };
 
   const handleVirtualKeyPress = (key: string) => {
     if (gameOver) return;
