@@ -20,11 +20,11 @@ export default function Game() {
   const handleChange = (row: number, index: number, value: string) => {
     if (gameOver) return;
     if (value.length > 1) return;
-
+  
     const newLetters = [...letters];
-    newLetters[row][index] = value.toUpperCase();
+    newLetters[row][index] = value.toUpperCase(); 
     setLetters(newLetters);
-
+  
     if (value && index < 4) {
       inputsRef.current[row][index + 1]?.focus();
     }
@@ -39,8 +39,20 @@ export default function Game() {
     index: number,
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (event.key === "Backspace" && !letters[row][index] && index > 0) {
-      inputsRef.current[row][index - 1]?.focus();
+    if (event.key === "Backspace") {
+      if (letters[row][index] !== "") {
+        const currentRow = [...letters[row]];
+        currentRow[index] = "";
+        setLetters((prev) => {
+          const updated = [...prev];
+          updated[row] = currentRow;
+          return updated;
+        });
+      }
+  
+      if (index > 0 && letters[row][index] === "") {
+        inputsRef.current[row][index - 1]?.focus();
+      }
     } else if (event.key === "ArrowRight" && index < 4) {
       inputsRef.current[row][index + 1]?.focus();
     } else if (event.key === "ArrowLeft" && index > 0) {
@@ -51,10 +63,10 @@ export default function Game() {
     ) {
       const newRowColors = [...rowColors];
       const normalizedCorrectWord = normalizeString(correctWord);
-
+  
       const colors = letters[row].map((letter, index) => {
         const normalizedLetter = normalizeString(letter);
-
+  
         if (normalizedLetter === normalizedCorrectWord[index]) {
           return "bg-green-600 border-none";
         } else if (normalizedCorrectWord.includes(normalizedLetter)) {
@@ -63,16 +75,16 @@ export default function Game() {
           return "bg-gray-900 border-none";
         }
       });
-
+  
       newRowColors[row] = colors;
       setRowColors(newRowColors);
-
+  
       updateKeyboardColors(row);
-
+  
       if (letters[row].join("") === normalizedCorrectWord) {
         setGameOver(true);
       }
-
+  
       if (row < letters.length - 1 && !gameOver) {
         setActiveRow(row + 1);
         inputsRef.current[row + 1][0]?.focus();
@@ -142,16 +154,14 @@ export default function Game() {
 
   const handleVirtualKeyPress = (key: string) => {
     if (gameOver) return;
-
+  
     const row = activeRow;
     const currentRow = [...letters[row]];
-
+  
     if (key === "Backspace") {
-      const lastFilledIndex = currentRow.lastIndexOf(
-        currentRow.find((l) => l !== "") || ""
-      );
-      if (lastFilledIndex >= 0) {
-        currentRow[lastFilledIndex] = "";
+      const currentIndex = currentRow.findIndex((letter) => letter !== "");
+      if (currentRow[currentIndex] !== "") {
+        currentRow[currentIndex] = "";
         setLetters((prev) => {
           const updated = [...prev];
           updated[row] = currentRow;
