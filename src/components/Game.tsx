@@ -92,6 +92,47 @@ export default function Game() {
     }
   };
 
+  const handleVirtualKeyPress = (key: string) => {
+    if (gameOver) return;
+  
+    const row = activeRow;
+    const currentRow = [...letters[row]];
+  
+    if (key === "Backspace") {
+      let lastFilledIndex = currentRow.length - 1;
+  
+      while (lastFilledIndex >= 0 && currentRow[lastFilledIndex] === "") {
+        lastFilledIndex--;
+      }
+  
+      if (lastFilledIndex >= 0) {
+        currentRow[lastFilledIndex] = "";
+        setLetters((prev) => {
+          const updated = [...prev];
+          updated[row] = currentRow;
+          return updated;
+        });
+  
+        inputsRef.current[row][lastFilledIndex]?.focus();
+      }
+    } else if (key === "Enter" && currentRow.every((letter) => letter !== "")) {
+      verifyRow(row);
+    } else if (/^[A-Z]$/.test(key)) {
+      const emptyIndex = currentRow.indexOf("");
+  
+      if (emptyIndex !== -1) {
+        currentRow[emptyIndex] = key;
+        setLetters((prev) => {
+          const updated = [...prev];
+          updated[row] = currentRow;
+          return updated;
+        });
+  
+        inputsRef.current[row][emptyIndex]?.focus();
+      }
+    }
+  };
+
   const verifyRow = (row: number) => {
     const newRowColors = [...rowColors];
     const normalizedCorrectWord = normalizeString(correctWord);
@@ -128,7 +169,7 @@ export default function Game() {
     if (row < activeRow) {
       return rowColors[row][index];
     } else if (row === activeRow) {
-      return;
+      return "focus:border-b-8";
     } else {
       return "border-none bg-teste1";
     }
@@ -137,7 +178,7 @@ export default function Game() {
   useEffect(() => {
     const fetchCorrectWord = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/palavra");
+        const response = await fetch("https://verbumgame.vercel.app/api/palavra");
         const data = await response.json();
         setCorrectWord(data.palavra.toUpperCase());
       } catch (error) {
@@ -151,37 +192,6 @@ export default function Game() {
   useEffect(() => {
     inputsRef.current[activeRow][0]?.focus();
   }, [activeRow]);
-
-  const handleVirtualKeyPress = (key: string) => {
-    if (gameOver) return;
-  
-    const row = activeRow;
-    const currentRow = [...letters[row]];
-  
-    if (key === "Backspace") {
-      const currentIndex = currentRow.findIndex((letter) => letter !== "");
-      if (currentRow[currentIndex] !== "") {
-        currentRow[currentIndex] = "";
-        setLetters((prev) => {
-          const updated = [...prev];
-          updated[row] = currentRow;
-          return updated;
-        });
-      }
-    } else if (key === "Enter" && currentRow.every((letter) => letter !== "")) {
-      verifyRow(row);
-    } else if (/^[A-Z]$/.test(key)) {
-      const emptyIndex = currentRow.indexOf("");
-      if (emptyIndex !== -1) {
-        currentRow[emptyIndex] = key;
-        setLetters((prev) => {
-          const updated = [...prev];
-          updated[row] = currentRow;
-          return updated;
-        });
-      }
-    }
-  };
 
   const updateKeyboardColors = (row: number) => {
     const newKeyboardColors = { ...keyboardColors };
@@ -217,7 +227,7 @@ export default function Game() {
                 onChange={(e) => handleChange(rowIndex, index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(rowIndex, index, e)}
                 disabled={gameOver || rowIndex > activeRow}
-                className={`h-16 w-16 text-center text-xl font-bold uppercase border-4 border-teste focus:outline-none focus:border-b-8 caret-transparent transition-all duration-100 ease-in-out rounded-lg ${getBackgroundColor(
+                className={`h-16 w-16 text-center text-xl font-bold uppercase border-4 border-teste focus:outline-none caret-transparent transition-all duration-100 ease-in-out rounded-lg ${getBackgroundColor(
                   rowIndex,
                   index
                 )}`}
