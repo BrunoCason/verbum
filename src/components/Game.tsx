@@ -231,6 +231,7 @@ export default function Game() {
                   rowIndex,
                   index
                 )}`}
+                inputMode="none"
               />
             ))}
           </div>
