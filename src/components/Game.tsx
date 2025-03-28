@@ -180,7 +180,7 @@ export default function Game() {
     setKeyboardColors({});
 
     try {
-      const response = await fetch("http://localhost:3000/api/palavra");
+      const response = await fetch("https://verbumgame.vercel.app/api/palavra");
       const data = await response.json();
       setCorrectWord(data.palavra.toUpperCase());
     } catch (error) {
@@ -237,7 +237,7 @@ export default function Game() {
   useEffect(() => {
     const fetchCorrectWord = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/palavra");
+        const response = await fetch("https://verbumgame.vercel.app/api/palavra");
         const data = await response.json();
         setCorrectWord(data.palavra.toUpperCase());
       } catch (error) {
