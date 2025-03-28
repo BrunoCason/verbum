@@ -9,13 +9,13 @@ const Keyboard: React.FC<KeyboardProps> = ({ onKeyPress, keyboardColors }) => {
   const keys = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
 
   return (
-    <div className="flex flex-col items-center gap-2 mt-4">
+    <div className="flex flex-col items-center gap-2 mt-6">
       {keys.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-1">
           {row.split("").map((key) => (
             <button
               key={key}
-              className={`w-10 h-12 text-lg font-bold rounded-md active:scale-95 transition-all duration-100 ease-in-out ${
+              className={`w-7 h-10 sm:w-10 sm:h-12  sm:text-lg font-bold rounded-md active:scale-95 transition-all duration-100 ease-in-out ${
                 keyboardColors[key] || "bg-teste1"
               }`}
               onClick={() => onKeyPress(key)}
@@ -27,13 +27,13 @@ const Keyboard: React.FC<KeyboardProps> = ({ onKeyPress, keyboardColors }) => {
       ))}
       <div className="flex gap-1">
         <button
-          className="w-20 h-12 text-lg font-bold bg-teste1 text-white rounded-md active:scale-95"
+          className="w-10 h-10 sm:w-20 sm:h-12 text-lg font-bold bg-teste1 text-white rounded-md active:scale-95"
           onClick={() => onKeyPress("Backspace")}
         >
           ⌫
         </button>
         <button
-          className="w-20 h-12 text-lg font-bold bg-teste1 text-white rounded-md active:scale-95"
+          className="w-18 h-10 sm:w-20 sm:h-12 text-lg font-bold bg-teste1 text-white rounded-md active:scale-95"
           onClick={() => onKeyPress("Enter")}
         >
           ENTER

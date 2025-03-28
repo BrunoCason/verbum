@@ -16,6 +16,10 @@ export default function Game() {
     [key: string]: string;
   }>({});
   const [endMessage, setEndMessage] = useState<string>("");
+  const [selectedCell, setSelectedCell] = useState<{
+    row: number;
+    index: number;
+  } | null>(null);
 
   const inputsRef = useRef<(HTMLInputElement | null)[][]>([]);
 
@@ -98,6 +102,75 @@ export default function Game() {
     }
   };
 
+  const handleVirtualKeyPress = (key: string) => {
+    if (gameOver) return;
+
+    const row = activeRow;
+    const currentRow = [...letters[row]];
+
+    if (key === "Backspace") {
+      if (selectedCell) {
+        const { row: selectedRow, index: selectedIndex } = selectedCell;
+        if (selectedRow === row) {
+          currentRow[selectedIndex] = "";
+          setLetters((prev) => {
+            const updated = [...prev];
+            updated[row] = currentRow;
+            return updated;
+          });
+
+          const newIndex =
+            selectedIndex > 0 ? selectedIndex - 1 : selectedIndex;
+          setSelectedCell({ row, index: newIndex });
+          inputsRef.current[row][newIndex]?.focus();
+        }
+      }
+    } else if (key === "Enter" && currentRow.every((letter) => letter !== "")) {
+      verifyRow(row);
+
+      if (row < letters.length - 1) {
+        setActiveRow(row + 1);
+        setSelectedCell({ row: row + 1, index: 0 });
+
+        setTimeout(() => {
+          inputsRef.current[row + 1][0]?.focus();
+        }, 10);
+      }
+    } else if (/^[A-Z]$/.test(key)) {
+      if (selectedCell) {
+        const { row: selectedRow, index: selectedIndex } = selectedCell;
+        if (selectedRow === row) {
+          currentRow[selectedIndex] = key;
+          setLetters((prev) => {
+            const updated = [...prev];
+            updated[row] = currentRow;
+            return updated;
+          });
+
+          const nextIndex =
+            selectedIndex < currentRow.length - 1
+              ? selectedIndex + 1
+              : selectedIndex;
+          setSelectedCell({ row, index: nextIndex });
+          inputsRef.current[row][nextIndex]?.focus();
+        }
+      } else {
+        const emptyIndex = currentRow.indexOf("");
+        if (emptyIndex !== -1) {
+          currentRow[emptyIndex] = key;
+          setLetters((prev) => {
+            const updated = [...prev];
+            updated[row] = currentRow;
+            return updated;
+          });
+
+          setSelectedCell({ row, index: emptyIndex });
+          inputsRef.current[row][emptyIndex]?.focus();
+        }
+      }
+    }
+  };
+
   const handleRestart = async () => {
     setLetters(Array.from({ length: 6 }, () => ["", "", "", "", ""]));
     setRowColors(Array.from({ length: 6 }, () => Array(5).fill("")));
@@ -107,7 +180,7 @@ export default function Game() {
     setKeyboardColors({});
 
     try {
-      const response = await fetch("https://verbumgame.vercel.app/api/palavra");
+      const response = await fetch("http://localhost:3000/api/palavra");
       const data = await response.json();
       setCorrectWord(data.palavra.toUpperCase());
     } catch (error) {
@@ -115,45 +188,8 @@ export default function Game() {
     }
   };
 
-  const handleVirtualKeyPress = (key: string) => {
-    if (gameOver) return;
-
-    const row = activeRow;
-    const currentRow = [...letters[row]];
-
-    if (key === "Backspace") {
-      let lastFilledIndex = currentRow.length - 1;
-
-      while (lastFilledIndex >= 0 && currentRow[lastFilledIndex] === "") {
-        lastFilledIndex--;
-      }
-
-      if (lastFilledIndex >= 0) {
-        currentRow[lastFilledIndex] = "";
-        setLetters((prev) => {
-          const updated = [...prev];
-          updated[row] = currentRow;
-          return updated;
-        });
-
-        inputsRef.current[row][lastFilledIndex]?.focus();
-      }
-    } else if (key === "Enter" && currentRow.every((letter) => letter !== "")) {
-      verifyRow(row);
-    } else if (/^[A-Z]$/.test(key)) {
-      const emptyIndex = currentRow.indexOf("");
-
-      if (emptyIndex !== -1) {
-        currentRow[emptyIndex] = key;
-        setLetters((prev) => {
-          const updated = [...prev];
-          updated[row] = currentRow;
-          return updated;
-        });
-
-        inputsRef.current[row][emptyIndex]?.focus();
-      }
-    }
+  const handleCellClick = (row: number, index: number) => {
+    setSelectedCell({ row, index });
   };
 
   const verifyRow = (row: number) => {
@@ -201,9 +237,7 @@ export default function Game() {
   useEffect(() => {
     const fetchCorrectWord = async () => {
       try {
-        const response = await fetch(
-          "https://verbumgame.vercel.app/api/palavra"
-        );
+        const response = await fetch("http://localhost:3000/api/palavra");
         const data = await response.json();
         setCorrectWord(data.palavra.toUpperCase());
       } catch (error) {
@@ -252,7 +286,8 @@ export default function Game() {
                 onChange={(e) => handleChange(rowIndex, index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(rowIndex, index, e)}
                 disabled={gameOver || rowIndex > activeRow}
-                className={`h-16 w-16 text-center text-xl font-bold uppercase border-4 border-teste focus:outline-none caret-transparent transition-all duration-100 ease-in-out rounded-lg ${getBackgroundColor(
+                onClick={() => handleCellClick(rowIndex, index)}
+                className={`h-12 w-12 sm:h-16 sm:w-16 text-center text-xl font-bold uppercase border-4 border-teste focus:outline-none caret-transparent transition-all duration-100 ease-in-out rounded-lg ${getBackgroundColor(
                   rowIndex,
                   index
                 )}`}
