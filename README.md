@@ -1,40 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+## Verbum  
 
-## Getting Started
+Verbum is a word-guessing game inspired by Termo, where players have six attempt to guess the correct five-letter word. After each attempt, the game provides feedback by changing the colors of the letters, helping players determine their accuracy.
 
-First, run the development server:
+## Play Now
+You can play Verbum online at [verbumgame.vercel.app](https://verbumgame.vercel.app)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features 
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Interactive word-guessing game**
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+2. **Real-time input validation**  
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+3. **Color-coded feedback for guessed letters:**   
+   🟩 Green: Correct letter in the correct position </br>
+   🟨 Yellow: Correct letter in the wrong position </br>
+   ⬛ Gray: Incorrect letter
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+4. **Virtual keyboard support**
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+5. **Randomized word generation from an API**
 
-## Learn More
+## Technologies Used
+- Next.js - React framework for server-side rendering (SSR) and SEO optimization.
+- React - For building the user interface.
+- TypeScript - A superset of JavaScript to ensure better type safety in the code.
+- Tailwind CSS - A utility-first CSS framework for styling, providing a responsive and consistent design.
+- Fetch API - To get the correct word from an external source
 
-To learn more about Next.js, take a look at the following resources:
+## Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+1. **Clone the Repository**  
+   ```bash
+   git clone https://github.com/your-username/verbum.git
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Navigate to the project directory**
+   ```bash
+   cd verbum
 
-## Deploy on Vercel
+3. **Install Dependencies**
+   ```bash
+   npm install
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. **Run the application**
+   ```bash
+   npm run dev
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+## Contact
+Developed by Bruno Cason. Reach out via email at brunocasons@gmail.com
